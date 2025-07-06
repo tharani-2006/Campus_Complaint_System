@@ -18,35 +18,48 @@ const MyComplaints = () => {
     const [sortBy, setSortBy] = useState('date');
     const [loading, setLoading] = useState(true);
     const [userInfo, setUserInfo] = useState(null);
+    const [error, setError] = useState(null);
     const history = useHistory();
 
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchComplaints = async () => {
             setLoading(true);
             try {
-            const token = localStorage.getItem('token');
-                const [complaintsRes, feedbacksRes, userRes] = await Promise.all([
-                    axios.get('/api/complaints/my', {
-                        headers: { Authorization: `Bearer ${token}` }
-                    }),
-                    axios.get('/api/feedback', {
-                headers: { Authorization: `Bearer ${token}` }
-                    }),
-                    axios.get('/api/auth/profile', {
-                headers: { Authorization: `Bearer ${token}` }
-                    })
-                ]);
+                const complaintsRes = await axios.get('https://campus-complaint-system.onrender.com/api/complaints/my', {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                });
                 setComplaints(complaintsRes.data);
+            } catch (err) {
+                setError('Failed to fetch complaints');
+            }
+            setLoading(false);
+        };
+
+        const fetchFeedbacks = async () => {
+            try {
+                const feedbacksRes = await axios.get('https://campus-complaint-system.onrender.com/api/feedback', {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                });
                 setFeedbacks(feedbacksRes.data);
-                setUserInfo(userRes.data);
-                calculateStats(complaintsRes.data);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            } finally {
-                setLoading(false);
+            } catch (err) {
+                setError('Failed to fetch feedbacks');
             }
         };
-        fetchData();
+
+        const fetchProfile = async () => {
+            try {
+                const profileRes = await axios.get('https://campus-complaint-system.onrender.com/api/auth/profile', {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                });
+                setUserInfo(profileRes.data);
+            } catch (err) {
+                setError('Failed to fetch profile');
+            }
+        };
+
+        fetchComplaints();
+        fetchFeedbacks();
+        fetchProfile();
     }, []);
 
     const calculateStats = (complaintsData) => {
@@ -69,22 +82,14 @@ const MyComplaints = () => {
         }));
     };
 
-    const handleFeedbackSubmit = async (complaintId) => {
-        const { rating, comment } = feedbackState[complaintId] || {};
-        if (!rating) return;
+    const submitFeedback = async (complaintId, rating, comment) => {
         try {
-        const token = localStorage.getItem('token');
-        await axios.post('/api/feedback', { complaintId, rating, comment }, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        setFeedbackState(prev => ({ ...prev, [complaintId]: { ...prev[complaintId], submitted: true } }));
-            // Refresh feedbacks after submission
-            const feedbacksRes = await axios.get('/api/feedback', {
-                headers: { Authorization: `Bearer ${token}` }
+            await axios.post('https://campus-complaint-system.onrender.com/api/feedback', { complaintId, rating, comment }, {
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
             });
-            setFeedbacks(feedbacksRes.data);
-        } catch (error) {
-            console.error('Error submitting feedback:', error);
+            fetchFeedbacks();
+        } catch (err) {
+            setError('Failed to submit feedback');
         }
     };
 
@@ -344,7 +349,7 @@ const MyComplaints = () => {
                                             </div>
                                             <button 
                                                 className="btn btn-success btn-sm w-100" 
-                                                onClick={() => handleFeedbackSubmit(c._id)}
+                                                onClick={() => submitFeedback(c._id, feedbackState[c._id]?.rating, feedbackState[c._id]?.comment)}
                                             >
                                                 <i className="fas fa-paper-plane me-1"></i>Submit Feedback
                                             </button>

@@ -14,6 +14,8 @@ const AdminDashboard = () => {
     const [notesEdit, setNotesEdit] = useState({});
     const [statusEdit, setStatusEdit] = useState({});
     const [activeTab, setActiveTab] = useState('pending');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
     useEffect(() => {
         fetchComplaints();
@@ -21,22 +23,28 @@ const AdminDashboard = () => {
     }, []);
 
     const fetchComplaints = async () => {
-        const res = await axios.get('/api/complaints', {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        });
-        setComplaints(res.data);
+        setLoading(true);
+        try {
+            const res = await axios.get('https://campus-complaint-system.onrender.com/api/complaints', {
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+            });
+            setComplaints(res.data);
+        } catch (err) {
+            setError('Failed to fetch complaints');
+        }
+        setLoading(false);
     };
 
     const fetchStaff = async () => {
         try {
-            const res = await axios.get('/api/auth/staff', {
+            const res = await axios.get('https://campus-complaint-system.onrender.com/api/auth/staff', {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
             });
             console.log('Staff data received:', res.data);
             // Show all staff, with department if available
             setStaffList(res.data);
-        } catch (error) {
-            console.error('Error fetching staff:', error);
+        } catch (err) {
+            console.error('Error fetching staff:', err);
             setStaffList([]);
         }
     };
@@ -48,14 +56,14 @@ const AdminDashboard = () => {
                 return;
             }
             
-            await axios.put(`/api/complaints/${complaintId}/assign`, { staffId }, {
+            await axios.put(`https://campus-complaint-system.onrender.com/api/complaints/${complaintId}/assign`, { staffId }, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
             });
             console.log(`Complaint ${complaintId} assigned to staff ${staffId}`);
             fetchComplaints();
-        } catch (error) {
-            console.error('Error assigning complaint:', error);
-            alert(error.response?.data?.message || 'Failed to assign complaint. Please try again.');
+        } catch (err) {
+            console.error('Error assigning complaint:', err);
+            alert(err.response?.data?.message || 'Failed to assign complaint. Please try again.');
         }
     };
 
@@ -68,7 +76,7 @@ const AdminDashboard = () => {
     };
 
     const handleStatusUpdate = async (complaintId) => {
-        await axios.put(`/api/complaints/${complaintId}/status`, {
+        await axios.put(`https://campus-complaint-system.onrender.com/api/complaints/${complaintId}/status`, {
             status: statusEdit[complaintId],
             resolutionNotes: notesEdit[complaintId]
         }, {

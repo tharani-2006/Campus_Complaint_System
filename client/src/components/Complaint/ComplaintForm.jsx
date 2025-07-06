@@ -26,10 +26,10 @@ const ComplaintForm = () => {
             formData.append('category', category);
             formData.append('dueInDays', dueInDays);
             if (image) formData.append('image', image);
-            await axios.post('/api/complaints', formData, {
+            await axios.post('https://campus-complaint-system.onrender.com/api/complaints', formData, {
                 headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'multipart/form-data'
+                    'Content-Type': 'multipart/form-data',
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
                 }
             });
             setSuccess('Complaint submitted successfully!');

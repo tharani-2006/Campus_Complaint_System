@@ -19,31 +19,38 @@ const StaffDashboard = () => {
     const [sortBy, setSortBy] = useState('date');
     const [loading, setLoading] = useState(true);
     const [userInfo, setUserInfo] = useState(null);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchAssignedComplaints = async () => {
             setLoading(true);
             try {
-            const token = localStorage.getItem('token');
-                const [complaintsRes, userRes] = await Promise.all([
-                    axios.get('/api/complaints/assigned', {
-                        headers: { Authorization: `Bearer ${token}` }
-                    }),
-                    axios.get('/api/auth/profile', {
-                headers: { Authorization: `Bearer ${token}` }
-                    })
-                ]);
-                setComplaints(complaintsRes.data);
-                setUserInfo(userRes.data);
-                calculateStats(complaintsRes.data);
-            } catch (error) {
-                console.error('Error fetching data:', error);
+                const res = await axios.get('https://campus-complaint-system.onrender.com/api/complaints/assigned', {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                });
+                setComplaints(res.data);
+                calculateStats(res.data);
+            } catch (err) {
+                setError('Failed to fetch assigned complaints');
             } finally {
                 setLoading(false);
             }
         };
-        fetchData();
-    }, [refresh]);
+
+        const fetchProfile = async () => {
+            try {
+                const res = await axios.get('https://campus-complaint-system.onrender.com/api/auth/profile', {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                });
+                setUserInfo(res.data);
+            } catch (err) {
+                setError('Failed to fetch profile');
+            }
+        };
+
+        fetchAssignedComplaints();
+        fetchProfile();
+    }, []);
 
     const calculateStats = (complaintsData) => {
         const stats = {
@@ -68,17 +75,25 @@ const StaffDashboard = () => {
         const formData = new FormData();
         formData.append('remarks', remarks);
         if (photo) formData.append('photo', photo);
-        const token = localStorage.getItem('token');
-        await axios.post(`/api/complaints/${selectedComplaint._id}/staff-update`, formData, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'multipart/form-data'
-            }
-        });
+        await submitStaffUpdate(selectedComplaint, formData);
         setSelectedComplaint(null);
         setRefresh(r => !r);
         } catch (error) {
             console.error('Error updating complaint:', error);
+        }
+    };
+
+    const submitStaffUpdate = async (selectedComplaint, formData) => {
+        try {
+            await axios.post(`https://campus-complaint-system.onrender.com/api/complaints/${selectedComplaint._id}/staff-update`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            fetchAssignedComplaints();
+        } catch (err) {
+            setError('Failed to submit update');
         }
     };
 

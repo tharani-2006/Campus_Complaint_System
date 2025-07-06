@@ -6,21 +6,20 @@ const ComplaintDetail = () => {
     const { id } = useParams();
     const [complaint, setComplaint] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchComplaint = async () => {
+            setLoading(true);
             try {
-                const res = await axios.get(`/api/complaints/${id}`, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`
-                    }
+                const res = await axios.get(`https://campus-complaint-system.onrender.com/api/complaints/${id}`, {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
                 });
                 setComplaint(res.data);
             } catch (err) {
-                setComplaint(null);
-            } finally {
-                setLoading(false);
+                setError('Failed to fetch complaint details');
             }
+            setLoading(false);
         };
         fetchComplaint();
     }, [id]);
