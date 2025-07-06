@@ -21,42 +21,42 @@ const MyComplaints = () => {
     const [error, setError] = useState(null);
     const history = useHistory();
 
+    const fetchComplaints = async () => {
+        setLoading(true);
+        try {
+            const complaintsRes = await axios.get('https://campus-complaint-system.onrender.com/api/complaints/my', {
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+            });
+            setComplaints(complaintsRes.data);
+        } catch (err) {
+            setError('Failed to fetch complaints');
+        }
+        setLoading(false);
+    };
+
+    const fetchFeedbacks = async () => {
+        try {
+            const feedbacksRes = await axios.get('https://campus-complaint-system.onrender.com/api/feedback', {
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+            });
+            setFeedbacks(feedbacksRes.data);
+        } catch (err) {
+            setError('Failed to fetch feedbacks');
+        }
+    };
+
+    const fetchProfile = async () => {
+        try {
+            const profileRes = await axios.get('https://campus-complaint-system.onrender.com/api/auth/profile', {
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+            });
+            setUserInfo(profileRes.data);
+        } catch (err) {
+            setError('Failed to fetch profile');
+        }
+    };
+
     useEffect(() => {
-        const fetchComplaints = async () => {
-            setLoading(true);
-            try {
-                const complaintsRes = await axios.get('https://campus-complaint-system.onrender.com/api/complaints/my', {
-                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-                });
-                setComplaints(complaintsRes.data);
-            } catch (err) {
-                setError('Failed to fetch complaints');
-            }
-            setLoading(false);
-        };
-
-        const fetchFeedbacks = async () => {
-            try {
-                const feedbacksRes = await axios.get('https://campus-complaint-system.onrender.com/api/feedback', {
-                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-                });
-                setFeedbacks(feedbacksRes.data);
-            } catch (err) {
-                setError('Failed to fetch feedbacks');
-            }
-        };
-
-        const fetchProfile = async () => {
-            try {
-                const profileRes = await axios.get('https://campus-complaint-system.onrender.com/api/auth/profile', {
-                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-                });
-                setUserInfo(profileRes.data);
-            } catch (err) {
-                setError('Failed to fetch profile');
-            }
-        };
-
         fetchComplaints();
         fetchFeedbacks();
         fetchProfile();

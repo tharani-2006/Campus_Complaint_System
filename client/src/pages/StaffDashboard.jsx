@@ -21,36 +21,36 @@ const StaffDashboard = () => {
     const [userInfo, setUserInfo] = useState(null);
     const [error, setError] = useState(null);
 
+    const fetchAssignedComplaints = async () => {
+        setLoading(true);
+        try {
+            const res = await axios.get('https://campus-complaint-system.onrender.com/api/complaints/assigned', {
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+            });
+            setComplaints(res.data);
+            calculateStats(res.data);
+        } catch (err) {
+            setError('Failed to fetch assigned complaints');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchAssignedComplaints = async () => {
-            setLoading(true);
-            try {
-                const res = await axios.get('https://campus-complaint-system.onrender.com/api/complaints/assigned', {
-                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-                });
-                setComplaints(res.data);
-                calculateStats(res.data);
-            } catch (err) {
-                setError('Failed to fetch assigned complaints');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        const fetchProfile = async () => {
-            try {
-                const res = await axios.get('https://campus-complaint-system.onrender.com/api/auth/profile', {
-                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-                });
-                setUserInfo(res.data);
-            } catch (err) {
-                setError('Failed to fetch profile');
-            }
-        };
-
         fetchAssignedComplaints();
         fetchProfile();
     }, []);
+
+    const fetchProfile = async () => {
+        try {
+            const res = await axios.get('https://campus-complaint-system.onrender.com/api/auth/profile', {
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+            });
+            setUserInfo(res.data);
+        } catch (err) {
+            setError('Failed to fetch profile');
+        }
+    };
 
     const calculateStats = (complaintsData) => {
         const stats = {
