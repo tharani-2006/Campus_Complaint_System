@@ -60,4 +60,5 @@ Uses express.Router() for modular route handling
 
 Imports controllers for logic separation
 
-Includes role-based protection using isAdmin middlewar
+Includes role-based protection using isAdmin middleware
+
