@@ -39,3 +39,23 @@ Stores authentication details (token, user info) in localStorage for persistence
 Centralizes all route definitions and redirection logic in one file for better maintainability.
 
 Redirects users dynamically after login depending on their role.
+
+
+
+# File: client/src/api/auth.js
+
+Functions:
+
+register(userData) → Sends a POST request to register a new user.
+
+login(userData) → Sends a POST request to log in a user and receive a JWT token.
+
+Key Points:
+
+Uses Axios for cleaner and simpler API calls.
+
+Automatically handles JSON data and response parsing.
+
+Base URL points to the deployed backend (/api/auth/).
+
+Centralized API module makes authentication requests reusable and maintainable.
