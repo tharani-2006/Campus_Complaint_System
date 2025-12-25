@@ -1,4 +1,4 @@
-# Smart Campus Complaint System
+<h1 align="center">Smart Campus Complaint System</h1>
 
 <div align="center">
 
@@ -16,16 +16,17 @@
 
 ---
 
-## 📸 Screenshots
+##  Screenshots
 
 <div align="center">
-
-![Landing Page](<img width="1851" height="922" alt="Screenshot 2025-12-25 121716" src="https://github.com/user-attachments/assets/e6610ff2-c598-4b91-9a4f-f2f175d55ae7" />
-)
-
-*Smart Campus Complaint System - Landing Page for Kongu Engineering College*
-
+  <img 
+    src="https://github.com/user-attachments/assets/48127d29-d387-4ce2-85cb-0a2356d05b18"
+    alt="Smart Campus Complaint System Landing Page"
+    width="900"
+  />
+  <p><i>Smart Campus Complaint System – Landing Page</i></p>
 </div>
+
 
 ---
 
